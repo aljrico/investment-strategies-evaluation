@@ -11,7 +11,7 @@ source("get_tickers.R")
 
 # Retrieve Data -----------------------------------------------------------
 
-tickers <- getTickers(index = "all")
+tickers <- getTickers(index = "sp400")
 fins <- getFinancials(tickers)
 
 

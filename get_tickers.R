@@ -12,6 +12,18 @@ getTickers <- function(index = "sp500"){
 		tickers <- as.character(symbols_table$`Ticker symbol`)
 	}
 
+	if(index == "sp400"){
+		sp400_wiki <- read_html(
+			"https://en.wikipedia.org/wiki/List_of_S%26P_400_companies")
+
+		symbols_table <- sp400_wiki %>%
+			html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
+			html_table()
+
+		symbols_table <- symbols_table[[1]]
+		tickers <- as.character(symbols_table$`Ticker Symbol`)
+	}
+
 	if(index == "sp1000"){
 		sp1000_wiki <- read_html(
 			"https://en.wikipedia.org/wiki/List_of_S%26P_1000_companies")
