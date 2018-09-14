@@ -12,12 +12,16 @@ source("get_tickers.R")
 # Retrieve Data -----------------------------------------------------------
 
 tickers <- getTickers(index = "sp400")
+tickers <- c("AAPL", "GOOGL", "AMZN", "FB")
 fins <- getFinancials(tickers)
 
 
 # Tidy Data ---------------------------------------------------------------
 
 # Prices
+stock_prices <- new.env()
+getSymbols(tickers, env = stock_prices, src = "yahoo", from = "1950-01-01", auto.assign = TRUE)
+
 all_prices <- tibble()
 
 for(i in 1:length(tickers)){
@@ -42,12 +46,12 @@ fins[is.na(fins)] <- 0
 # Plots -------------------------------------------------------------------
 
 fins %>%
-	ggplot(aes(colour = company)) +
+	ggplot(aes(colour = firm)) +
 	geom_point(aes(x = date, y = as.numeric(TotalRevenue)/as.numeric(LongTermDebt))) +
 	theme_bw()
 
 fins %>%
-	ggplot(aes(colour = company)) +
+	ggplot(aes(colour = firm)) +
 	geom_point(aes(x = date, y = as.numeric(LongTermInvestments)/as.numeric(TotalRevenue))) +
 	geom_line(aes(x = date, y = as.numeric(LongTermInvestments)/as.numeric(TotalRevenue))) +
 	theme_minimal()
@@ -58,7 +62,7 @@ fins %>%
 fins %>%
 	mutate(invest_rev_ratio = as.numeric(LongTermInvestments)/as.numeric(TotalRevenue)) %>%
 	top_n(20, as.numeric(IncomeBeforeTax)) %>%
-	ggplot(aes(colour = company)) +
+	ggplot(aes(colour = firm)) +
 	geom_point(aes(x = date, y = as.numeric(LongTermInvestments)/as.numeric(TotalRevenue))) +
 	geom_line(aes(x = date, y = as.numeric(LongTermInvestments)/as.numeric(TotalRevenue))) +
 	theme_minimal()

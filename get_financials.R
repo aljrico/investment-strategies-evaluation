@@ -69,7 +69,7 @@ getFinancials <- function(stock){
 				df <- df %>% data.table()
 				colnames(df) <- financial_camps
 				df$date <- mdy(dates)
-				df$company <- stock[[i]]
+				df$firm <- stock[[i]]
 			},
 			error = function(cond){
 				message(stock[i], "Give error ",cond)
