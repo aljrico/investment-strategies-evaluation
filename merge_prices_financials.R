@@ -19,6 +19,5 @@ tidy_merged$firm <- as.factor(tidy_merged$firm)
 cols <- colnames(tidy_merged)
 for(c in cols) if(is.character(tidy_merged[[c]])) tidy_merged[[c]] <- as.numeric(tidy_merged[[c]])
 
-tidy_merged %>%
-	ggplot(aes(x = date, y = price/(TotalCashFlowsFromInvestingActivities + TotalCashFlowFromOperatingActivities))) +
-	geom_line(aes(colour = firm))
+tidy_merged <- tidy_merged %>%  distinct()
+

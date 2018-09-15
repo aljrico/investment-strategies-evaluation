@@ -12,7 +12,7 @@ source("get_tickers.R")
 # Retrieve Data -----------------------------------------------------------
 
 tickers <- getTickers(index = "sp400")
-tickers <- c("AAPL", "GOOGL", "AMZN", "FB")
+tickers <- tickers %>% sample(10)
 fins <- getFinancials(tickers)
 
 
