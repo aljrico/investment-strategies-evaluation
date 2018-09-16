@@ -14,7 +14,7 @@ alpha <- function(portfolio, benchmark){
 	if(tail(portfolio,1) <= 0){
 		return(0)
 	}else{
-		a <- irr(cf = portfolio) - beta(portfolio, benchmark)*irr(cf = benchmark)
+		a <- (portfolio - beta(portfolio, benchmark)*benchmark)/(portfolio + beta(portfolio, benchmark)*benchmark)
 		return(a)
 	}
 }
@@ -24,7 +24,7 @@ invest <- function(method = "random", data, date, amount_to_invest = 1, stocks_o
 	stocks_available <- data %>% filter(date == d) %>% .$firm %>% unique() %>% as.character()
 
 	if(method == "random"){
-		selected_stock <- stocks_available %>% sample(specificity)
+		selected_stock <- stocks_available %>% sample(specificity, replace = TRUE)
 	}
 
 	if(method == "per"){
@@ -38,10 +38,12 @@ invest <- function(method = "random", data, date, amount_to_invest = 1, stocks_o
 			as.character()
 	}
 
-	if(is.null(stocks_owned[[selected_stock]])) {
-		stocks_owned[[selected_stock]] <- 0
+	for(s in selected_stock){
+		if(is.null(stocks_owned[[s]])) {
+			stocks_owned[[s]] <- 0
+		}
+		stocks_owned[[s]] <- stocks_owned[[s]] + amount_to_invest/(specificity*(data %>% filter(date == d) %>% filter(firm == s) %>% .$price))
 	}
-	stocks_owned[[selected_stock]] <- stocks_owned[[selected_stock]] + amount_to_invest/(specificity*(data %>% filter(date == d) %>% filter(firm == selected_stock) %>% .$price))
 
 	return(stocks_owned)
 }
