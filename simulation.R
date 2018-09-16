@@ -2,9 +2,6 @@ library(tidyverse)
 library(data.table)
 library(progress)
 
-source("merge_prices_financials.R")
-
-
 # Formulas ----------------------------------------------------------------
 
 beta <- function(portfolio, benchmark){
