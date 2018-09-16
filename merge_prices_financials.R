@@ -10,6 +10,7 @@ for(s in stocks){
 	df <- merged %>% filter(firm == s)
 	df <- na.locf(df) %>%
 		na.omit() %>%
+		distinct() %>%
 		as_tibble()
 	tidy_merged <- tidy_merged %>% rbind(tidy_merged,df)
 }

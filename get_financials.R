@@ -75,6 +75,7 @@ getFinancials <- function(stock){
 				message(stock[i], "Give error ",cond)
 			}
 		)
+		df[is.na(df)] <- 0
 		output <- rbind(output, df)
 	}
 	return(output)

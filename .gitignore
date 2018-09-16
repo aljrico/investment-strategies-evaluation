@@ -1,4 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+.feather
 .Ruserdata
+*.Rproj
+data
