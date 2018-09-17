@@ -4,19 +4,19 @@ library(feather)
 library(tictoc)
 source("functions.R")
 
-worth <- 0
 trials <- 1
-n_stocks <- 500
-alpha_result <- list()
+n_stocks <- 100
+specificity <- 2
+alpha_result <- c()
 tic()
 for(t in 1:trials){
-	stocks_universe <- getTickers("sp500") %>% sample(n_stocks) %>% intersect(list.files("data/"))
+	stocks_universe <- getTickers("all") %>% sample(n_stocks) %>% intersect(list.files("data/"))
 	files <- paste0("data/",stocks_universe)
 	dt <- rbindlist(lapply(files, read_feather)) %>% filter(price >= 0.1) %>% data.table()
 
-	investment <- simulate_investment(data = dt, amount_to_invest = 1, strategy = "per", specificity = 2)
+	investment <- simulate_investment(data = dt, amount_to_invest = 1, strategy = "dividends_ev", specificity = specificity)
 
-	alpha_result[[t]] <- alpha(portfolio = investment$result$per, benchmark = investment$result$benchmark)
+	alpha_result[[t]] <- alpha(portfolio = investment$result$evebitda, benchmark = investment$result$benchmark) %>% tail(150) %>%  sum()
 }
 toc()
 
@@ -32,6 +32,7 @@ investment$portfolio_strategy %>%
 	as.data.frame() %>%
 	rownames_to_column("company") %>%
 	mutate(weight = V1/sum(V1)) %>%
+	top_n(10, weight) %>%
 	ggplot(aes(x = reorder(company, -weight), y = weight)) +
 	geom_col(colour = "black") +
 	theme_minimal()
@@ -47,8 +48,8 @@ investment$portfolio_benchmark %>%
 	geom_col(colour = "black") +
 	theme_minimal()
 
-names(alpha_result) <- paste0("V",as.character(seq(1:trials)))
 alpha_result %>%
 	as_tibble() %>%
-	.$V1 %>%
-	ts.plot()
+	ggplot(aes(x = value)) +
+	geom_histogram(colour = "black") +
+	theme_minimal()

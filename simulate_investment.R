@@ -38,6 +38,28 @@ invest <- function(method = "random", data, date, amount_to_invest = 1, stocks_o
 			as.character()
 	}
 
+	if(method == "evebitda"){
+		selected_stock <- data %>%
+			filter(date == d) %>%
+			filter(firm %in% stocks_available) %>%
+			mutate(evebitda = (EarningsBeforeInterestandTaxes)/(price + PreferredStock + MinorityInterest + LongTermDebt - CashAndCashEquivalents)) %>%
+			top_n(specificity, -evebitda) %>%
+			.$firm %>%
+			unique() %>%
+			as.character()
+	}
+
+	if(method == "dividends_ev"){
+		selected_stock <- data %>%
+			filter(date == d) %>%
+			filter(firm %in% stocks_available) %>%
+			mutate(dividends_ev = (DividendsPaid)/(price + PreferredStock + MinorityInterest + LongTermDebt - CashAndCashEquivalents)) %>%
+			top_n(specificity, dividends_ev) %>%
+			.$firm %>%
+			unique() %>%
+			as.character()
+	}
+
 	for(s in selected_stock){
 		if(is.null(stocks_owned[[s]])) {
 			stocks_owned[[s]] <- 0
@@ -95,4 +117,48 @@ simulate_investment <- function(data, amount_to_invest = 1, strategy = "per", sp
 	portfolio_own <- stocks_owned
 	portfolio_benchmark <- stocks_owned_benchmark
 	return(list(results = results, portfolio_strategy = portfolio_own, portfolio_benchmark = portfolio_benchmark))
+}
+
+
+simulate_multiple_strategies <- function(data, amount_to_invest = 1, specificity = 1, strategies){
+	dates <- unique(data$date)
+	portfolio <- tibble()
+	stocks_owned <- list()
+	for(s in strategies) stocks_owned[[s]] <- list()
+
+	pb <- progress_bar$new(total = length(dates))
+	for(i in 1:length(dates)){
+		pb$tick()
+
+		d <- dates[[i]]
+
+		today_portfolio <- tibble(date = d)
+		today_prices <- data %>% filter(date == d)
+
+		for(strategy in (strategies)){
+
+			# Invest first day of each month
+			if(!(class(try(dates[[i-1]], silent = TRUE)) == 'try-error')){
+				if(day(dates[[i]]) < day(dates[[i-1]])){
+					stocks_owned[[strategy]] <- invest(method = strategy, data = data, date = d, amount_to_invest = amount_to_invest, stocks_owned = stocks_owned[[strategy]], specificity = specificity)
+				}
+			}else{
+				stocks_owned[[strategy]] <- invest(method = strategy, data = data, date = d, amount_to_invest = amount_to_invest, stocks_owned = stocks_owned[[strategy]], specificity = specificity)
+			}
+
+			# Compute Portfolio value
+			tmp_value <- 0
+			tmp_benchmark <- 0
+			for(n in names(stocks_owned[[strategy]])){
+				lmao <-	data %>% filter(date == d) %>% .$firm %>% unique() %>% as.character()
+				tmp_value <- tmp_value + sum(stocks_owned[[strategy]][[n]]*(today_prices %>% filter(firm == n) %>% .$price))
+			}
+
+			today_portfolio[[strategy]] <- tmp_value
+		}
+		portfolio <- rbind(portfolio,today_portfolio)
+	}
+	results <- portfolio
+	portfolio_own <- stocks_owned
+	return(list(results = results, portfolio = portfolio_own))
 }
