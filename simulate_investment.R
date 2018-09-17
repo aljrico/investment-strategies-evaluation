@@ -43,7 +43,7 @@ invest <- function(method = "random", data, date, amount_to_invest = 1, stocks_o
 			filter(date == d) %>%
 			filter(firm %in% stocks_available) %>%
 			mutate(evebitda = (EarningsBeforeInterestandTaxes)/(price + PreferredStock + MinorityInterest + LongTermDebt - CashAndCashEquivalents)) %>%
-			top_n(specificity, -evebitda) %>%
+			top_n(specificity, evebitda) %>%
 			.$firm %>%
 			unique() %>%
 			as.character()
@@ -121,14 +121,12 @@ simulate_investment <- function(data, amount_to_invest = 1, strategy = "per", sp
 
 
 simulate_multiple_strategies <- function(data, amount_to_invest = 1, specificity = 1, strategies){
-	dates <- unique(data$date)
+	dates <- unique(data$date) %>% sort()
 	portfolio <- tibble()
 	stocks_owned <- list()
 	for(s in strategies) stocks_owned[[s]] <- list()
 
-	pb <- progress_bar$new(total = length(dates))
 	for(i in 1:length(dates)){
-		pb$tick()
 
 		d <- dates[[i]]
 
