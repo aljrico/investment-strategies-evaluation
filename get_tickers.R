@@ -29,7 +29,7 @@ getTickers <- function(index = "sp500"){
 			"https://en.wikipedia.org/wiki/List_of_S%26P_1000_companies")
 
 		symbols_table <- sp1000_wiki %>%
-			html_nodes(xpath='//*[@id="mw-content-text"]/div/table[2]') %>%
+			html_nodes(xpath='//*[@id="mw-content-text"]/div/table[3]') %>%
 			html_table()
 
 		symbols_table <- symbols_table[[1]]
@@ -51,7 +51,7 @@ getTickers <- function(index = "sp500"){
 			"https://en.wikipedia.org/wiki/List_of_S%26P_1000_companies")
 
 		symbols_table <- sp1000_wiki %>%
-			html_nodes(xpath='//*[@id="mw-content-text"]/div/table[2]') %>%
+			html_nodes(xpath='//*[@id="mw-content-text"]/div/table[3]') %>%
 			html_table()
 
 		symbols_table <- symbols_table[[1]]
