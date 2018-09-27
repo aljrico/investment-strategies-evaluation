@@ -37,7 +37,8 @@ investment$result %>%
 	geom_line(size = 1) +
 	theme_minimal() +
 	scale_colour_hp(discrete = TRUE, house = "ravenclaw") +
-	ylab("Value")
+	ylab("Value") +
+	xlab("")
 
 alpha_result %>%
 	as_tibble() %>%
